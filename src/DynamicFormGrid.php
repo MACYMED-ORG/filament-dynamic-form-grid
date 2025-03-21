@@ -8,7 +8,8 @@ use Filament\Forms\Components\Component; // Changez cette importation
 use Illuminate\Contracts\View\View;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
-
+use Illuminate\Database\Eloquent\Model;
+use Closure;
 class DynamicFormGrid extends Component
 {
     protected string $view = 'macymed-dynamic-form-grid::dynamic-form-grid';
@@ -17,7 +18,7 @@ class DynamicFormGrid extends Component
     
     protected array $blocks = [];
     
-    protected $model = null;
+    protected Model|Closure|string|null $model = null;
     
     public function __construct()
     {
