@@ -7,20 +7,20 @@ use Filament\Forms\Components\Repeater;
 class DynamicGridRepeater extends Repeater
 {
     /**
-     * Indique si l'ajustement automatique du nombre de colonnes est activé.
+     * Active ou désactive l'ajustement automatique du nombre de colonnes.
      */
     protected bool $autoGrid = false;
 
     /**
-     * Nombre maximum de colonnes (plafond) pour l'affichage en grille.
+     * Nombre maximum de colonnes autorisées (plafond).
      */
     protected int $maxGridColumns = 4;
 
     /**
-     * Active/désactive l'ajustement automatique du nombre de colonnes.
+     * Active ou désactive l'autoGrid.
      *
      * @param bool $condition
-     * @param int  $maxColumns Nombre maximum de colonnes.
+     * @param int $maxColumns Nombre maximum de colonnes.
      * @return $this
      */
     public function autoGrid(bool $condition = true, int $maxColumns = 4): static
@@ -31,20 +31,24 @@ class DynamicGridRepeater extends Repeater
     }
 
     /**
-     * Retourne dynamiquement le nombre de colonnes.
+     * Surcharge de getGridColumns pour renvoyer dynamiquement le nombre de colonnes.
      *
-     * La signature respecte celle attendue par Filament : getColumns(?string $breakpoint = null): array|string|int|null.
+     * La signature doit être compatible avec :
+     * public function getGridColumns(?string $breakpoint = null): array|string|int|null
      */
-    public function getColumns(?string $breakpoint = null): array|string|int|null
+    public function getGridColumns(?string $breakpoint = null): array|string|int|null
     {
         if ($this->autoGrid) {
             $items = $this->getState();
             if (is_array($items)) {
-                $count = count($items);
-                return min($this->maxGridColumns, max(1, $count));
+                // Le nombre de colonnes est égal au nombre d'items, minimum 1 et maximum $maxGridColumns.
+                $columnsCount = min($this->maxGridColumns, max(1, count($items)));
+                // On peut aussi mettre à jour la propriété gridColumns pour que la méthode grid() le prenne en compte.
+                $this->gridColumns = $columnsCount;
+                return $columnsCount;
             }
         }
-        dump($breakpoint);
-        return parent::getColumns($breakpoint);
+
+        return parent::getGridColumns($breakpoint);
     }
 }
