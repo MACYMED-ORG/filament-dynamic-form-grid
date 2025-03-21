@@ -6,55 +6,37 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Html;
 use Filament\Forms\Components\Component;
+use Illuminate\View\View;
 
 class DynamicFormGrid extends Field
 {
-    // On utilise une vue personnalisée.
+    // On utilise une vue personnalisée pour le rendu.
     protected string $view = 'filament-macymed-dynamic-form-grid::dynamic-form-grid';
 
-    // Ces propriétés stockent la structure JSON et la liste des blocs (instances de Block fournies par le développeur)
+    // Ces propriétés stockent la structure JSON et la liste des blocs dynamiques.
     protected array $data = [];
     protected array $blocks = [];
 
     /**
-     * Crée le composant en liant le nom (pour le binding sur le modèle).
+     * Crée le composant en liant le nom (pour le binding automatique avec le modèle).
      */
     public static function make(string $name): static
     {
-        // Field::make() gère la liaison automatique avec l'attribut du modèle.
+        // Field::make() gère le binding automatique sur l'attribut du modèle.
         $static = parent::make($name);
         $static->schema($static->generateSchema());
         return $static;
     }
 
     /**
-     * Définit la structure JSON qui décrit le formulaire dynamique.
-     *
-     * La structure doit être un tableau d'éléments, par exemple :
-     * [
-     *   [
-     *     "type" => "section",
-     *     "data" => [
-     *         "columns" => [
-     *             [
-     *                "data" => [
-     *                    "items" => [
-     *                        [ "type" => "field-text", "data" => [ "identifiant" => "nom", "label" => "Nom", "required" => true ] ],
-     *                        ...
-     *                    ]
-     *                ]
-     *             ],
-     *             // éventuellement d'autres colonnes
-     *         ]
-     *     ]
-     *   ],
-     *   // éventuellement d'autres sections
-     * ]
+     * Définit la structure JSON du formulaire dynamique.
      */
     public function data($data): static
     {
         $this->data = $data;
+        // Regénère le schéma en fonction des nouvelles données.
         $this->schema($this->generateSchema());
         return $this;
     }
@@ -62,8 +44,7 @@ class DynamicFormGrid extends Field
     /**
      * Définit la liste des blocs dynamiques.
      *
-     * Ces blocs sont fournis par exemple par FormRegistrationBuilder::getBlocksElements($form, $mpEvent)
-     * et doivent contenir, pour chaque bloc, au moins un identifiant et un composant (accessible via une méthode getComponent() ou une clé 'component').
+     * Chaque bloc doit contenir au moins un identifiant et un composant.
      */
     public function blocks(array $blocks): static
     {
@@ -73,9 +54,7 @@ class DynamicFormGrid extends Field
     }
 
     /**
-     * Génère le schéma du formulaire à partir de la structure JSON.
-     *
-     * Le schéma retourné est un tableau d'instances de Component (Section, Grid, TextInput, etc.).
+     * Génère le schéma (tableau de composants) à partir de la structure JSON.
      */
     protected function generateSchema(): array
     {
@@ -109,7 +88,6 @@ class DynamicFormGrid extends Field
                     }
                 }
 
-                // Calcul du span en fonction du nombre de colonnes.
                 $span = 12 / $columnCount;
                 if (!empty($columnFields)) {
                     $columnsSchema[] = Grid::make()
@@ -128,39 +106,51 @@ class DynamicFormGrid extends Field
     }
 
     /**
-     * Crée un composant Filament à partir d'un bloc de données.
+     * Crée un composant Filament à partir d’un bloc de données.
      *
-     * Si un bloc correspondant est trouvé dans $this->blocks (via l'identifiant), on retourne son composant.
-     * Sinon, on crée un composant générique (TextInput dans cet exemple).
+     * – Si un bloc correspondant est trouvé dans $this->blocks (via l’identifiant), on retourne son composant.
+     * – Si ce composant est déjà une vue, on l’enveloppe dans un composant Html.
+     * – Sinon, on crée un composant TextInput générique.
      */
     protected function createDynamicBlockComponent(array $item): ?Component
     {
         $identifiant = $item['data']['identifiant'] ?? null;
         $label = $item['data']['label'] ?? 'Champ';
+
         if (!$identifiant) {
             return null;
         }
 
-        // Recherche dans la liste des blocs fournis
+        // Recherche dans la liste des blocs fournis.
         foreach ($this->blocks as $block) {
-            // On s'attend à ce que le bloc ait une méthode getId() et getComponent().
+            // Si le bloc est un objet possédant les méthodes getId() et getComponent().
             if (method_exists($block, 'getId') && $block->getId() === $identifiant) {
-                $component = $block->getComponent();
-                if ($component instanceof Component) {
-                    return $component;
+                $comp = $block->getComponent();
+                if ($comp instanceof Component) {
+                    return $comp;
+                }
+                if ($comp instanceof View) {
+                    return Html::make($identifiant)->html($comp->render());
                 }
             }
-            // Si le bloc est un tableau et contient 'identifiant' et 'component'
-            if (is_array($block)
+            // Si le bloc est un tableau contenant 'data' et 'component'.
+            if (
+                is_array($block)
                 && isset($block['data']['identifiant'])
                 && $block['data']['identifiant'] === $identifiant
                 && isset($block['component'])
-                && $block['component'] instanceof Component) {
-                return $block['component'];
+            ) {
+                $comp = $block['component'];
+                if ($comp instanceof Component) {
+                    return $comp;
+                }
+                if ($comp instanceof View) {
+                    return Html::make($identifiant)->html($comp->render());
+                }
             }
         }
 
-        // Si aucun bloc spécifique n'est trouvé, on crée un TextInput générique.
+        // Par défaut, crée un TextInput générique.
         return TextInput::make($identifiant)
             ->label($label)
             ->required($item['data']['required'] ?? false);
