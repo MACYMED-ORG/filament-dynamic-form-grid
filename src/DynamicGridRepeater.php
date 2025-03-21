@@ -7,7 +7,7 @@ use Filament\Forms\Components\Repeater;
 class DynamicGridRepeater extends Repeater
 {
     /**
-     * Active ou désactive l'ajustement automatique du nombre de colonnes.
+     * Indique si l'ajustement automatique du nombre de colonnes est activé.
      */
     protected bool $autoGrid = false;
 
@@ -17,10 +17,10 @@ class DynamicGridRepeater extends Repeater
     protected int $maxGridColumns = 4;
 
     /**
-     * Active ou désactive l'autoGrid.
+     * Active ou désactive l'autoGrid et fixe le maximum de colonnes.
      *
      * @param bool $condition
-     * @param int $maxColumns Nombre maximum de colonnes.
+     * @param int  $maxColumns Nombre maximum de colonnes.
      * @return $this
      */
     public function autoGrid(bool $condition = true, int $maxColumns = 4): static
@@ -33,22 +33,25 @@ class DynamicGridRepeater extends Repeater
     /**
      * Surcharge de getGridColumns pour renvoyer dynamiquement le nombre de colonnes.
      *
-     * La signature doit être compatible avec :
-     * public function getGridColumns(?string $breakpoint = null): array|string|int|null
+     * La méthode doit retourner array|string|int|null.
      */
     public function getGridColumns(?string $breakpoint = null): array|string|int|null
     {
         if ($this->autoGrid) {
             $items = $this->getState();
             if (is_array($items)) {
-                // Le nombre de colonnes est égal au nombre d'items, minimum 1 et maximum $maxGridColumns.
+                // Calculer le nombre de colonnes en fonction du nombre d'items,
+                // avec au minimum 1 et au maximum $maxGridColumns.
                 $columnsCount = min($this->maxGridColumns, max(1, count($items)));
-                // On peut aussi mettre à jour la propriété gridColumns pour que la méthode grid() le prenne en compte.
-                $this->gridColumns = $columnsCount;
-                return $columnsCount;
+                // Met à jour gridColumns sous forme de tableau (par exemple, pour le breakpoint 'lg').
+                $this->gridColumns = ['lg' => $columnsCount];
+
+                if ($breakpoint !== null) {
+                    return $this->gridColumns[$breakpoint] ?? null;
+                }
+                return $this->gridColumns;
             }
         }
-
         return parent::getGridColumns($breakpoint);
     }
 }
