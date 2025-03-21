@@ -14,7 +14,6 @@ use Closure;
 
 class DynamicFormGrid extends Field
 {
-    use HasName;
     
     protected string $view = 'macymed-dynamic-form-grid::dynamic-form-grid';
 
