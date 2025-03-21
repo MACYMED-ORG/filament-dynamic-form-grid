@@ -44,7 +44,7 @@ class DynamicFormGrid extends Component
         return $this;
     }
     
-    public function model(Illuminate\Database\Eloquent\Model|Closure|string|null $model = null ): static
+    public function model(Model|Closure|string|null $model = null ): static
     {
         $this->model = $model;
         
