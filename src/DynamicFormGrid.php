@@ -14,7 +14,7 @@ use Closure;
 class DynamicFormGrid extends Component
 {
     use HasName;
-    use HasState;
+    
     protected string $view = 'macymed-dynamic-form-grid::dynamic-form-grid';
 
     protected array $data = [];
