@@ -18,9 +18,9 @@ class DynamicFormGridServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        // Enregistrer le composant avec Filament
-        $this->app->bind(DynamicFormGrid::class, function () {
-            return new DynamicFormGrid('data');
-        });
+        // // Enregistrer le composant avec Filament
+        // $this->app->bind(DynamicFormGrid::class, function () {
+        //     return new DynamicFormGrid('data');
+        // });
     }
 }
