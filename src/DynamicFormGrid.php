@@ -26,12 +26,18 @@ class DynamicFormGrid extends Field
 
     public static function make(string $name): static
     {
-        $static = app(static::class, ['name' => $name]);
-        $static->configure();
+        $static = parent::make($name);
         $static->schema($static->generateSchema());
         return $static;
     }
-    
+    // protected function setUp(): void
+    // {
+    //     parent::setUp();
+
+    //     $this->default([]);
+    //     $this->schema($this->generateSchema());
+        
+    // }
 
     public function data($data): static
     {
