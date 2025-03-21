@@ -20,7 +20,7 @@ class DynamicFormGridServiceProvider extends PackageServiceProvider
     {
         // Enregistrer le composant avec Filament
         $this->app->bind(DynamicFormGrid::class, function () {
-            return new DynamicFormGrid();
+            return new DynamicFormGrid('data');
         });
     }
 }
