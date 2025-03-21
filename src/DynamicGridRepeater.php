@@ -44,6 +44,7 @@ class DynamicGridRepeater extends Repeater
                 return min($this->maxGridColumns, max(1, $count));
             }
         }
+        dump($breakpoint);
         return parent::getColumns($breakpoint);
     }
 }
