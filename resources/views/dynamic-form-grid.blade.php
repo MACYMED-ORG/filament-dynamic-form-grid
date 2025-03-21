@@ -4,6 +4,10 @@
     @endif
 
     <div class="mt-2 space-y-4">
-        {!! $getChildComponentContainer() !!}
+        @foreach ($getChildComponents() as $child)
+            @if ($child instanceof \Filament\Forms\Components\Component)
+                {!! $child->render() !!}
+            @endif
+        @endforeach
     </div>
 </div>
