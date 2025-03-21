@@ -8,7 +8,7 @@ use Filament\Forms\Components\Field;
 class GridBuilder extends Field
 {
     // La vue utilisée pour afficher l'éditeur de grille.
-    protected string $view = 'filament-macymed-dynamic-grid::grid-builder';
+    protected string $view = 'filament-macymed-dynamic-form-grid::grid-builder';
 
     // La valeur par défaut est une chaîne JSON (ici, une grille vide).
     protected $default = '[]';
