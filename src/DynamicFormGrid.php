@@ -16,19 +16,22 @@ class DynamicFormGrid extends Component
     protected array $blocks = [];
     protected string $fieldName;
 
-    public function __construct(string $fieldName)
+    final public function __construct(string $name)
     {
-        $this->fieldName = $fieldName;  // Le nom du champ est passé ici
+        $this->name($name);
+        $this->statePath($name);
+
+        
     }
 
-    public static function make(string $fieldName): static
+    public static function make(string $name): static
     {
-        $static = app(static::class, ['fieldName' => $fieldName]);
-
+        $static = app(static::class, ['name' => $name]);
+        $static->configure();
         $static->schema($static->generateSchema());
-
         return $static;
     }
+    
 
     public function data($data): static
     {
