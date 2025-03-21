@@ -10,37 +10,37 @@ use Filament\Forms\Components\Component;
 
 class DynamicFormGrid extends Field
 {
-    // On utilise une vue dédiée pour le rendu.
+    // Utilise une vue personnalisée pour le rendu.
     protected string $view = 'filament-macymed-dynamic-form-grid::dynamic-form-grid';
 
-    // Ces propriétés stockent la structure JSON et les blocs dynamiques.
+    // Stocke la structure JSON et les blocs dynamiques.
     protected array $data = [];
     protected array $blocks = [];
 
     /**
-     * Crée le composant en liant le nom (le champ dans le modèle).
+     * Crée le composant en liant le nom (pour l'attribut du modèle).
      */
     public static function make(string $name): static
     {
-        // On s'appuie sur Field::make() pour bénéficier de la liaison automatique
+        // On s'appuie sur Field::make() pour bénéficier du binding automatique.
         $static = parent::make($name);
         $static->schema($static->generateSchema());
         return $static;
     }
 
     /**
-     * Permet de définir la structure JSON du formulaire dynamique.
+     * Définit la structure JSON du formulaire dynamique.
      */
     public function data($data): static
     {
         $this->data = $data;
-        // Regénère le schéma en fonction des nouvelles données
+        // Regénère le schéma en fonction des données.
         $this->schema($this->generateSchema());
         return $this;
     }
 
     /**
-     * Permet de définir les blocs dynamiques (ex. renvoyés par FormRegistrationBuilder::getBlocksElements(...)).
+     * Définit les blocs dynamiques (par exemple renvoyés par FormRegistrationBuilder::getBlocksElements(...)).
      */
     public function blocks(array $blocks): static
     {
@@ -70,7 +70,6 @@ class DynamicFormGrid extends Field
             $columnsSchema = [];
             $columnCount = count($columns);
 
-            // On s'assure d'avoir au moins une colonne
             if ($columnCount === 0) {
                 continue;
             }
@@ -78,13 +77,15 @@ class DynamicFormGrid extends Field
             foreach ($columns as $column) {
                 $columnItems = $column['data']['items'] ?? [];
                 $columnFields = [];
+
                 foreach ($columnItems as $item) {
-                    // On crée un composant dynamique pour chaque bloc
+                    // Crée le composant dynamique pour chaque bloc.
                     $matchingBlock = $this->createDynamicBlockComponent($item);
                     if ($matchingBlock instanceof Component) {
                         $columnFields[] = $matchingBlock;
                     }
                 }
+
                 $span = 12 / $columnCount;
                 if (!empty($columnFields)) {
                     $columnsSchema[] = Grid::make()
@@ -104,7 +105,7 @@ class DynamicFormGrid extends Field
 
     /**
      * Crée un composant Filament à partir d'un bloc de données.
-     * Ici, on utilise TextInput par défaut. Vous pouvez étendre cette logique pour d'autres types.
+     * Ici, nous utilisons TextInput par défaut. Vous pourrez étendre cette logique pour gérer d'autres types.
      */
     protected function createDynamicBlockComponent(array $item): ?Component
     {
@@ -119,7 +120,4 @@ class DynamicFormGrid extends Field
             ->label($label)
             ->required($item['data']['required'] ?? false);
     }
-
-    // Nous n'avons plus besoin de surcharger getChildComponents().
-    // Field gère déjà la récupération du schéma via getSchema().
 }
