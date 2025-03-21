@@ -1,63 +1,58 @@
 <?php
+
 namespace Macymed\Filament\DynamicFormGrid;
 
-use Filament\Forms\Components\Component;
-use Filament\Forms\Components\Concerns\HasName;
-use Filament\Forms\Components\Concerns\HasState;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
-
-use Illuminate\Database\Eloquent\Model;
-use Closure;
+use Filament\Forms\Components\Component;
 
 class DynamicFormGrid extends Field
 {
-    
+    // La vue utilisée pour ce composant (le nom du namespace doit correspondre à celui défini dans le service provider)
     protected string $view = 'filament-macymed-dynamic-form-grid::dynamic-form-grid';
 
     protected array $data = [];
     protected array $blocks = [];
-    protected string $fieldName;
 
-   
-
+    /**
+     * Crée une instance du composant en liant le nom du champ.
+     */
     public static function make(string $name): static
     {
+        // Utilisation de la méthode parent::make() pour créer le composant Field
         $static = parent::make($name);
+        // Génère le schéma initial en fonction des données (s'il y en a déjà)
         $static->schema($static->generateSchema());
         return $static;
     }
-    // protected function setUp(): void
-    // {
-    //     parent::setUp();
 
-    //     $this->default([]);
-    //     $this->schema($this->generateSchema());
-        
-    // }
-
+    /**
+     * Définit les données JSON (la structure) du formulaire dynamique.
+     */
     public function data($data): static
     {
         $this->data = $data;
-
-        // Mettre à jour le schéma après avoir changé les données
+        // Reconstruit le schéma en fonction des nouvelles données
         $this->schema($this->generateSchema());
-
         return $this;
     }
 
+    /**
+     * Définit les blocs dynamiques (ex. renvoyés par FormRegistrationBuilder::getBlocksElements(...)).
+     */
     public function blocks(array $blocks): static
     {
         $this->blocks = $blocks;
-
-        // Mettre à jour le schéma après avoir changé les blocs
+        // Reconstruit le schéma pour prendre en compte les blocs
         $this->schema($this->generateSchema());
-
         return $this;
     }
 
+    /**
+     * Construit le schéma (tableau de composants) à partir des données JSON.
+     */
     protected function generateSchema(): array
     {
         $schema = [];
@@ -73,25 +68,27 @@ class DynamicFormGrid extends Field
 
             $sectionData = $sectionItem['data'] ?? [];
             $columns = $sectionData['columns'] ?? [];
-
             $columnsSchema = [];
             $columnCount = count($columns);
 
-            foreach ($columns as $columnIndex => $column) {
+            // S'assurer qu'il y a au moins une colonne
+            if ($columnCount === 0) {
+                continue;
+            }
+
+            foreach ($columns as $column) {
                 $columnItems = $column['data']['items'] ?? [];
                 $columnFields = [];
 
                 foreach ($columnItems as $item) {
-                    // Crée les blocs dynamiques à partir des données de l'élément
+                    // Création du composant dynamique à partir de l'item
                     $matchingBlock = $this->createDynamicBlockComponent($item);
-
-                    if ($matchingBlock) {
+                    if ($matchingBlock instanceof Component) {
                         $columnFields[] = $matchingBlock;
                     }
                 }
 
                 $span = 12 / $columnCount;
-
                 if (!empty($columnFields)) {
                     $columnsSchema[] = Grid::make()
                         ->schema($columnFields)
@@ -108,9 +105,13 @@ class DynamicFormGrid extends Field
         return $schema;
     }
 
+    /**
+     * Crée un composant Filament à partir d'un bloc de données.
+     * Ici, on utilise TextInput en exemple.  
+     * Si besoin, la logique peut être étendue pour gérer différents types de blocs.
+     */
     protected function createDynamicBlockComponent(array $item): ?Component
     {
-        // Crée un composant dynamique en fonction du type de bloc (par exemple : champ texte, champ sélection)
         $identifiant = $item['data']['identifiant'] ?? null;
         $label = $item['data']['label'] ?? 'Champ';
 
@@ -118,15 +119,18 @@ class DynamicFormGrid extends Field
             return null;
         }
 
-        // Cas génériques pour chaque type de champ
+        // Exemple générique : on crée un TextInput
         return TextInput::make($identifiant)
             ->label($label)
             ->required($item['data']['required'] ?? false);
     }
 
-    // Surcharger la méthode getChildComponents de Component
+    /**
+     * Retourne les composants enfants pour le rendu.
+     */
     public function getChildComponents(): array
     {
-        return $this->schema;
+        // Utilise getSchema() qui est géré par la classe Field
+        return $this->getSchema();
     }
 }
