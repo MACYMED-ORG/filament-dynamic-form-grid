@@ -4,6 +4,7 @@ namespace Macymed\Filament\DynamicFormGrid;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Concerns\HasName;
 use Filament\Forms\Components\Concerns\HasState;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -11,7 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Model;
 use Closure;
 
-class DynamicFormGrid extends Component
+class DynamicFormGrid extends Field
 {
     use HasName;
     
