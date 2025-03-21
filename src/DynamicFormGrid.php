@@ -24,15 +24,30 @@ class DynamicFormGrid extends Component
     {
         // Constructeur vide
     }
-    
+   
+    public function model(Model|Closure|string|null $model = null ): static
+    {
+        $this->model = $model;
+        
+        return $this;
+    }
+    // Méthode statique pour créer une instance
     public static function make(): static
     {
-        return app(static::class);
+        $static = app(static::class);
+        
+        // Générer le schéma immédiatement
+        $static->schema($static->generateSchema());
+        
+        return $static;
     }
     
     public function data($data): static
     {
         $this->data = $data;
+        
+        // Mettre à jour le schéma après avoir changé les données
+        $this->schema($this->generateSchema());
         
         return $this;
     }
@@ -41,16 +56,11 @@ class DynamicFormGrid extends Component
     {
         $this->blocks = $blocks;
         
-        return $this;
-    }
-    
-    public function model(Model|Closure|string|null $model = null ): static
-    {
-        $this->model = $model;
+        // Mettre à jour le schéma après avoir changé les blocs
+        $this->schema($this->generateSchema());
         
         return $this;
     }
-    
     // public function render(): View
     // {
     //     return view($this->view, [
