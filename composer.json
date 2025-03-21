@@ -1,0 +1,25 @@
+{
+    "name": "macymed/filament-dynamic-form-grid",
+    "description": "Composant de grille de formulaire dynamique pour Filament PHP 3.2",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Macymed\\Filament\\DynamicFormGrid\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^8.1",
+        "filament/filament": "^3.2",
+        "spatie/laravel-package-tools": "^1.15.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Macymed\\Filament\\DynamicFormGrid\\DynamicFormGridServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
