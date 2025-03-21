@@ -10,48 +10,47 @@ use Filament\Forms\Components\Component;
 
 class DynamicFormGrid extends Field
 {
-    // La vue utilisée pour ce composant (le nom du namespace doit correspondre à celui défini dans le service provider)
+    // On utilise une vue dédiée pour le rendu.
     protected string $view = 'filament-macymed-dynamic-form-grid::dynamic-form-grid';
 
+    // Ces propriétés stockent la structure JSON et les blocs dynamiques.
     protected array $data = [];
     protected array $blocks = [];
 
     /**
-     * Crée une instance du composant en liant le nom du champ.
+     * Crée le composant en liant le nom (le champ dans le modèle).
      */
     public static function make(string $name): static
     {
-        // Utilisation de la méthode parent::make() pour créer le composant Field
+        // On s'appuie sur Field::make() pour bénéficier de la liaison automatique
         $static = parent::make($name);
-        // Génère le schéma initial en fonction des données (s'il y en a déjà)
         $static->schema($static->generateSchema());
         return $static;
     }
 
     /**
-     * Définit les données JSON (la structure) du formulaire dynamique.
+     * Permet de définir la structure JSON du formulaire dynamique.
      */
     public function data($data): static
     {
         $this->data = $data;
-        // Reconstruit le schéma en fonction des nouvelles données
+        // Regénère le schéma en fonction des nouvelles données
         $this->schema($this->generateSchema());
         return $this;
     }
 
     /**
-     * Définit les blocs dynamiques (ex. renvoyés par FormRegistrationBuilder::getBlocksElements(...)).
+     * Permet de définir les blocs dynamiques (ex. renvoyés par FormRegistrationBuilder::getBlocksElements(...)).
      */
     public function blocks(array $blocks): static
     {
         $this->blocks = $blocks;
-        // Reconstruit le schéma pour prendre en compte les blocs
         $this->schema($this->generateSchema());
         return $this;
     }
 
     /**
-     * Construit le schéma (tableau de composants) à partir des données JSON.
+     * Génère le schéma (tableau de composants) à partir du JSON.
      */
     protected function generateSchema(): array
     {
@@ -71,7 +70,7 @@ class DynamicFormGrid extends Field
             $columnsSchema = [];
             $columnCount = count($columns);
 
-            // S'assurer qu'il y a au moins une colonne
+            // On s'assure d'avoir au moins une colonne
             if ($columnCount === 0) {
                 continue;
             }
@@ -79,15 +78,13 @@ class DynamicFormGrid extends Field
             foreach ($columns as $column) {
                 $columnItems = $column['data']['items'] ?? [];
                 $columnFields = [];
-
                 foreach ($columnItems as $item) {
-                    // Création du composant dynamique à partir de l'item
+                    // On crée un composant dynamique pour chaque bloc
                     $matchingBlock = $this->createDynamicBlockComponent($item);
                     if ($matchingBlock instanceof Component) {
                         $columnFields[] = $matchingBlock;
                     }
                 }
-
                 $span = 12 / $columnCount;
                 if (!empty($columnFields)) {
                     $columnsSchema[] = Grid::make()
@@ -107,8 +104,7 @@ class DynamicFormGrid extends Field
 
     /**
      * Crée un composant Filament à partir d'un bloc de données.
-     * Ici, on utilise TextInput en exemple.  
-     * Si besoin, la logique peut être étendue pour gérer différents types de blocs.
+     * Ici, on utilise TextInput par défaut. Vous pouvez étendre cette logique pour d'autres types.
      */
     protected function createDynamicBlockComponent(array $item): ?Component
     {
@@ -119,18 +115,11 @@ class DynamicFormGrid extends Field
             return null;
         }
 
-        // Exemple générique : on crée un TextInput
         return TextInput::make($identifiant)
             ->label($label)
             ->required($item['data']['required'] ?? false);
     }
 
-    /**
-     * Retourne les composants enfants pour le rendu.
-     */
-    public function getChildComponents(): array
-    {
-        // Utilise getSchema() qui est géré par la classe Field
-        return $this->getSchema();
-    }
+    // Nous n'avons plus besoin de surcharger getChildComponents().
+    // Field gère déjà la récupération du schéma via getSchema().
 }
