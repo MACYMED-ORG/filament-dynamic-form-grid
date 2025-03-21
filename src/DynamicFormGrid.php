@@ -15,7 +15,7 @@ use Closure;
 class DynamicFormGrid extends Field
 {
     
-    protected string $view = 'macymed-dynamic-form-grid::dynamic-form-grid';
+    protected string $view = 'filament-macymed-dynamic-form-grid::dynamic-form-grid';
 
     protected array $data = [];
     protected array $blocks = [];
