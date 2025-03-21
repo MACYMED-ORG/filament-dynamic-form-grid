@@ -2,7 +2,9 @@
 
 namespace Macymed\Filament\DynamicFormGrid;
 
-use Filament\Support\Components\Component;
+// use Filament\Support\Components\Component;
+use Filament\Forms\Components\Component; // Changez cette importation
+// use Filament\Support\Components\Component; // Commentez ou supprimez cette ligne
 use Illuminate\Contracts\View\View;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
