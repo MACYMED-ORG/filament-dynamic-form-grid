@@ -1,13 +1,14 @@
 <?php
 
-namespace Macymed\Filament\DynamicGrid;
+namespace Macymed\Filament\DynamicFormGrid;
+
 
 use Filament\Forms\Components\Field;
 
 class GridBuilder extends Field
 {
     // On précise la vue qui rendra le composant.
-    protected string $view = 'filament-macymed-dynamic-grid::grid-builder';
+    protected string $view = 'filament-macymed-dynamic-form-grid::grid-builder';
 
     // La valeur par défaut est une chaîne JSON représentant une grille vide.
     protected $default = '[]';
