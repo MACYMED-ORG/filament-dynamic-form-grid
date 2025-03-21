@@ -22,13 +22,7 @@ class DynamicFormGrid extends Field
     protected array $blocks = [];
     protected string $fieldName;
 
-    final public function __construct(string $name)
-    {
-        $this->name($name);
-        $this->statePath($name);
-
-        
-    }
+   
 
     public static function make(string $name): static
     {
